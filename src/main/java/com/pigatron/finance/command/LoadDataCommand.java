@@ -1,6 +1,6 @@
 package com.pigatron.finance.command;
 
-import com.pigatron.finance.data.entity.CurrentData;
+import com.pigatron.finance.data.entity.HistoricRangeData;
 import com.pigatron.finance.data.service.FinanceDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.core.CommandMarker;
@@ -9,26 +9,30 @@ import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Component
-public class QuoteCommand implements CommandMarker {
+public class LoadDataCommand implements CommandMarker {
 
     @Autowired
     private FinanceDataService financeDataService;
 
 
-    @CliAvailabilityIndicator({"quote"})
+    @CliAvailabilityIndicator({"load"})
     public boolean isCommandAvailable() {
         return true;
     }
 
-    @CliCommand(value = "quote", help = "CurrentData command")
-    public String quote(@CliOption(key = {""}, mandatory = true, help = "Symbol") final String symbol) {
-        CurrentData quote = financeDataService.getQuote(symbol);
+    @CliCommand(value = "load", help = "Load data command")
+    public String load(@CliOption(key = {""}, mandatory = true, help = "Symbol") final String symbol) {
+
+        LocalDateTime startDate = LocalDateTime.now().minusDays(5);
+
+        HistoricRangeData data = financeDataService.getHistoric(symbol, startDate, null);
+
+        System.out.println(data);
 
         String output = "";
-        //output += quote.getName() + " (" + quote.getSymbol() + ")\n";
-        output += "Last Trade Price: " + quote.getLastTradePrice() + "\n";
-        output += "Change: " + quote.getChange() + "\n";
         return output;
     }
 
